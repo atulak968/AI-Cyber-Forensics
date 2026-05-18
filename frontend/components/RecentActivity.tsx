@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+const API = process.env.NEXT_PUBLIC_API_URL;
 export default function RecentActivity() {
 
   const [history, setHistory] = useState<any[]>([]);
@@ -18,7 +18,7 @@ export default function RecentActivity() {
 
       const response = await fetch(
 
-        "http://127.0.0.1:8000/history"
+        `${API}/history`
       );
 
       const data = await response.json();
