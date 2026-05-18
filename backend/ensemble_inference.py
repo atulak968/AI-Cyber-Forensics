@@ -14,10 +14,10 @@ from transformers import (
 
 # Model 1: DistilBERT (main model)
 distilbert_tokenizer = DistilBertTokenizerFast.from_pretrained(
-    ""atulak968/fraud-transformer""
+    "atulak968/fraud-transformer"
 )
 distilbert_model = DistilBertForSequenceClassification.from_pretrained(
-    ""atulak968/fraud-transformer""
+    "atulak968/fraud-transformer"
 )
 distilbert_model.eval()
 
