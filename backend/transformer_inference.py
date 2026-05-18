@@ -12,7 +12,7 @@ tokenizer = DistilBertTokenizerFast.from_pretrained(
 
 # Load model
 model = DistilBertForSequenceClassification.from_pretrained(
-    "../models/fraud_transformer"
+    ""atulak968/fraud-transformer""
 )
 
 # Prediction function
