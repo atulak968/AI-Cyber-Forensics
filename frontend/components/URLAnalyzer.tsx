@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
+
 const API = process.env.NEXT_PUBLIC_API_URL;
+
 export default function URLAnalyzer() {
+
+  console.log("API URL:", API);
 
   const [url, setUrl] = useState("");
 
@@ -42,11 +46,13 @@ export default function URLAnalyzer() {
 
       const data = await response.json();
 
+      console.log("API RESPONSE:", data);
+
       setResult(data);
 
     } catch (error) {
 
-      console.log(error);
+      console.log("FETCH ERROR:", error);
 
     } finally {
 
