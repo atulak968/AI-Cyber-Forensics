@@ -1,0 +1,101 @@
+import pandas as pd
+import joblib
+
+# -------------------------
+# LOAD MODEL
+# -------------------------
+
+model = joblib.load(
+    "../models/url_phishing_model.pkl"
+)
+
+# -------------------------
+# PREDICT URL
+# -------------------------
+
+def predict_url(url):
+
+    # -------------------------
+    # SIMPLE FEATURE VECTOR
+    # -------------------------
+
+    features = {
+
+        "Index": 0,
+
+        "UsingIP": 1 if any(
+            c.isdigit() for c in url
+        ) else -1,
+
+        "LongURL": 1 if len(url) > 75 else -1,
+
+        "ShortURL": 1 if any(
+            short in url
+            for short in [
+                "bit.ly",
+                "tinyurl",
+                "goo.gl"
+            ]
+        ) else -1,
+
+        "Symbol@": 1 if "@" in url else -1,
+
+        "Redirecting//": 1 if url.rfind("//") > 7 else -1,
+
+        "PrefixSuffix-": 1 if "-" in url else -1,
+
+        "SubDomains": 1 if url.count(".") > 2 else -1,
+
+        "HTTPS": 1 if "https" in url else -1,
+
+        # REMAINING FEATURES DEFAULT SAFE
+        "DomainRegLen": -1,
+        "Favicon": -1,
+        "NonStdPort": -1,
+        "HTTPSDomainURL": -1,
+        "RequestURL": -1,
+        "AnchorURL": -1,
+        "LinksInScriptTags": -1,
+        "ServerFormHandler": -1,
+        "InfoEmail": -1,
+        "AbnormalURL": -1,
+        "WebsiteForwarding": -1,
+        "StatusBarCust": -1,
+        "DisableRightClick": -1,
+        "UsingPopupWindow": -1,
+        "IframeRedirection": -1,
+        "AgeofDomain": -1,
+        "DNSRecording": -1,
+        "WebsiteTraffic": -1,
+        "PageRank": -1,
+        "GoogleIndex": -1,
+        "LinksPointingToPage": -1,
+        "StatsReport": -1,
+    }
+
+    # -------------------------
+    # DATAFRAME
+    # -------------------------
+
+    X = pd.DataFrame([features])
+
+    # -------------------------
+    # PREDICT
+    # -------------------------
+
+    prediction = model.predict(X)[0]
+
+    probability = model.predict_proba(X)[0]
+
+    confidence = max(probability)
+
+    return {
+
+        "prediction":
+            "PHISHING"
+            if prediction == 1
+            else "SAFE",
+
+        "confidence":
+            float(confidence)
+    }

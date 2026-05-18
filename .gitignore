@@ -1,0 +1,31 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Database
+*.db
+
+# Node
+node_modules/
+.next/
+
+
+# Datasets
+datasets/
+
+# Logs
+logs/
+results/
+url_results/
+
+# models
+models/
+
+
+# Temp
+temp_*
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,240 @@
+"use client";
+
+import { useState } from "react";
+
+import {
+  UploadCloud,
+  ShieldAlert,
+  ShieldCheck,
+} from "lucide-react";
+
+export default function OCRUpload() {
+
+  const [file, setFile] = useState<File | null>(null);
+
+  const [result, setResult] = useState<any>(null);
+
+  const [loading, setLoading] = useState(false);
+
+  // -------------------------
+  // HANDLE FILE
+  // -------------------------
+
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+
+    if (e.target.files?.[0]) {
+
+      setFile(e.target.files[0]);
+    }
+  };
+
+  // -------------------------
+  // UPLOAD IMAGE
+  // -------------------------
+
+  const analyzeImage = async () => {
+
+    if (!file) return;
+
+    setLoading(true);
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    try {
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/analyze-image",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      setResult(data);
+
+    } catch (error) {
+
+      console.error(error);
+    }
+
+    setLoading(false);
+  };
+
+  return (
+
+    <div className="bg-[#050816] border border-green-500/20 rounded-2xl p-6">
+
+      <h2 className="text-2xl font-bold text-green-400 mb-6">
+
+        OCR Image Analysis
+
+      </h2>
+
+      {/* UPLOAD BOX */}
+
+      <label className="flex flex-col items-center justify-center border-2 border-dashed border-green-500/20 rounded-2xl h-64 cursor-pointer hover:border-green-400 transition-all">
+
+        <UploadCloud
+          size={70}
+          className="text-green-400 mb-4"
+        />
+
+        <p className="text-lg text-gray-300">
+
+          Upload Scam Screenshot
+
+        </p>
+
+        <p className="text-sm text-gray-500 mt-2">
+
+          JPG, PNG Supported
+
+        </p>
+
+        <input
+          type="file"
+          className="hidden"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+
+      </label>
+
+      {/* FILE NAME */}
+
+      {file && (
+
+        <div className="mt-4 bg-black border border-green-500/20 rounded-xl p-3">
+
+          <p className="text-green-400">
+
+            Selected:
+
+          </p>
+
+          <p className="text-gray-300">
+
+            {file.name}
+
+          </p>
+
+        </div>
+      )}
+
+      {/* BUTTON */}
+
+      <button
+        onClick={analyzeImage}
+        className="w-full mt-6 bg-green-500 hover:bg-green-600 transition-all text-black font-bold py-4 rounded-xl"
+      >
+
+        {loading
+          ? "Analyzing Image..."
+          : "Analyze Screenshot"}
+
+      </button>
+
+      {/* RESULT */}
+
+      {result && (
+
+        <div className="mt-6 border border-green-500/20 rounded-2xl p-5 bg-black">
+
+          <div className="flex items-center gap-4 mb-4">
+
+            {result.prediction === "SCAM IMAGE" ? (
+
+              <ShieldAlert
+                size={60}
+                className="text-red-500"
+              />
+
+            ) : (
+
+              <ShieldCheck
+                size={60}
+                className="text-green-400"
+              />
+            )}
+
+            <div>
+
+              <h2 className="text-3xl font-bold">
+
+                {result.prediction}
+
+              </h2>
+
+              <p className="text-gray-400">
+
+                OCR Threat Result
+
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* CONFIDENCE */}
+
+          <div className="mb-4">
+
+            <p className="mb-2">
+
+              Confidence Score
+
+            </p>
+
+            <div className="w-full bg-gray-800 rounded-full h-4">
+
+              <div
+                className="bg-red-500 h-4 rounded-full"
+                style={{
+                  width: `${
+                    result.confidence * 100
+                  }%`,
+                }}
+              />
+
+            </div>
+
+            <p className="mt-2 font-bold">
+
+              {(
+                result.confidence * 100
+              ).toFixed(2)}%
+
+            </p>
+
+          </div>
+
+          {/* OCR TEXT */}
+
+          <div className="bg-[#050816] border border-green-500/20 rounded-xl p-4 max-h-64 overflow-auto">
+
+            <p className="text-green-400 mb-2">
+
+              Extracted OCR Text
+
+            </p>
+
+            <p className="text-gray-300 whitespace-pre-wrap">
+
+              {result.extracted_text}
+
+            </p>
+
+          </div>
+
+        </div>
+      )}
+
+    </div>
+  );
+}
