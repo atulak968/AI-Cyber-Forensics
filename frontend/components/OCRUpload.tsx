@@ -7,12 +7,8 @@ import {
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
-
 const API = process.env.NEXT_PUBLIC_API_URL;
-
 export default function OCRUpload() {
-
-  console.log("OCR API:", API);
 
   const [file, setFile] = useState<File | null>(null);
 
@@ -20,11 +16,9 @@ export default function OCRUpload() {
 
   const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-
-  // =========================
-  // FILE SELECT
-  // =========================
+  // -------------------------
+  // HANDLE FILE
+  // -------------------------
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -33,74 +27,43 @@ export default function OCRUpload() {
     if (e.target.files?.[0]) {
 
       setFile(e.target.files[0]);
-
-      setError("");
-
-      setResult(null);
     }
   };
 
-  // =========================
-  // ANALYZE IMAGE
-  // =========================
+  // -------------------------
+  // UPLOAD IMAGE
+  // -------------------------
 
   const analyzeImage = async () => {
 
-    if (!file) {
-
-      setError("Please upload an image.");
-
-      return;
-    }
+    if (!file) return;
 
     setLoading(true);
 
-    setError("");
+    const formData = new FormData();
 
-    setResult(null);
+    formData.append("file", file);
 
     try {
 
-      const formData = new FormData();
-
-      formData.append("file", file);
-
       const response = await fetch(
-
         `${API}/analyze-image`,
-
         {
           method: "POST",
           body: formData,
         }
       );
 
-      if (!response.ok) {
-
-        throw new Error(
-          "OCR API request failed"
-        );
-      }
-
       const data = await response.json();
-
-      console.log("OCR RESPONSE:", data);
 
       setResult(data);
 
-    } catch (err: any) {
+    } catch (error) {
 
-      console.error("OCR ERROR:", err);
-
-      setError(
-        err.message ||
-        "Something went wrong."
-      );
-
-    } finally {
-
-      setLoading(false);
+      console.error(error);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -113,9 +76,7 @@ export default function OCRUpload() {
 
       </h2>
 
-      {/* ========================= */}
-      {/* UPLOAD */}
-      {/* ========================= */}
+      {/* UPLOAD BOX */}
 
       <label className="flex flex-col items-center justify-center border-2 border-dashed border-green-500/20 rounded-2xl h-64 cursor-pointer hover:border-green-400 transition-all">
 
@@ -145,9 +106,7 @@ export default function OCRUpload() {
 
       </label>
 
-      {/* ========================= */}
-      {/* FILE INFO */}
-      {/* ========================= */}
+      {/* FILE NAME */}
 
       {file && (
 
@@ -155,7 +114,7 @@ export default function OCRUpload() {
 
           <p className="text-green-400">
 
-            Selected File
+            Selected:
 
           </p>
 
@@ -168,14 +127,11 @@ export default function OCRUpload() {
         </div>
       )}
 
-      {/* ========================= */}
       {/* BUTTON */}
-      {/* ========================= */}
 
       <button
         onClick={analyzeImage}
-        disabled={loading}
-        className="w-full mt-6 bg-green-500 hover:bg-green-600 transition-all text-black font-bold py-4 rounded-xl disabled:opacity-50"
+        className="w-full mt-6 bg-green-500 hover:bg-green-600 transition-all text-black font-bold py-4 rounded-xl"
       >
 
         {loading
@@ -184,26 +140,7 @@ export default function OCRUpload() {
 
       </button>
 
-      {/* ========================= */}
-      {/* ERROR */}
-      {/* ========================= */}
-
-      {error && (
-
-        <div className="mt-4 bg-red-950 border border-red-500 rounded-xl p-4">
-
-          <p className="text-red-300">
-
-            {error}
-
-          </p>
-
-        </div>
-      )}
-
-      {/* ========================= */}
       {/* RESULT */}
-      {/* ========================= */}
 
       {result && (
 
@@ -230,7 +167,7 @@ export default function OCRUpload() {
 
               <h2 className="text-3xl font-bold">
 
-                {result.prediction || "UNKNOWN"}
+                {result.prediction}
 
               </h2>
 
@@ -244,9 +181,7 @@ export default function OCRUpload() {
 
           </div>
 
-          {/* ========================= */}
           {/* CONFIDENCE */}
-          {/* ========================= */}
 
           <div className="mb-4">
 
@@ -259,17 +194,10 @@ export default function OCRUpload() {
             <div className="w-full bg-gray-800 rounded-full h-4">
 
               <div
-                className={`h-4 rounded-full ${
-                  result.prediction ===
-                  "SCAM IMAGE"
-                    ? "bg-red-500"
-                    : "bg-green-500"
-                }`}
+                className="bg-red-500 h-4 rounded-full"
                 style={{
                   width: `${
-                    result.confidence
-                      ? result.confidence * 100
-                      : 0
+                    result.confidence * 100
                   }%`,
                 }}
               />
@@ -278,19 +206,15 @@ export default function OCRUpload() {
 
             <p className="mt-2 font-bold">
 
-              {result.confidence
-                ? (
-                    result.confidence * 100
-                  ).toFixed(2)
-                : "0.00"}%
+              {(
+                result.confidence * 100
+              ).toFixed(2)}%
 
             </p>
 
           </div>
 
-          {/* ========================= */}
           {/* OCR TEXT */}
-          {/* ========================= */}
 
           <div className="bg-[#050816] border border-green-500/20 rounded-xl p-4 max-h-64 overflow-auto">
 
@@ -302,8 +226,7 @@ export default function OCRUpload() {
 
             <p className="text-gray-300 whitespace-pre-wrap">
 
-              {result.extracted_text ||
-                "No OCR text extracted."}
+              {result.extracted_text}
 
             </p>
 
