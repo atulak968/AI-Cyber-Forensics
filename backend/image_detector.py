@@ -125,4 +125,17 @@ def analyze_image_contents(image_bytes):
             "extracted_text": "",
 
             "error": str(e)
-        }
+        }# =========================
+# BACKWARD COMPATIBILITY
+# =========================
+
+def extract_text(image_bytes):
+
+    result = analyze_image_contents(
+        image_bytes
+    )
+
+    return result.get(
+        "extracted_text",
+        ""
+    )
